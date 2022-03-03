@@ -17,3 +17,5 @@ You just have to define some settings and you are good to go.
 ### Join a game
 The game key (a 6-digit number) is required to join a game. You may get this game from the host or the public games list.
 
+## Dependencies
+Some functions require 'os'(random numbers/multiplayer-server), 'base64'(encryption/multiplayer), 'cryptography'(encryption/multiplayer), 'json'(multiplayer), 'requests'(multiplayer), 'hashlib'(encryption/hash), 'flask'(multiplayer-server) and/or 'time'(multiplayer-server).
