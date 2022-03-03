@@ -110,6 +110,7 @@ def is_prime(n: int) -> bool:
             return False
     return True
 
+
 class Q:
 
     def __init__(self, n=None) -> None:
