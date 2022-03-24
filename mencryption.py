@@ -138,15 +138,3 @@ def rsa_fernet_signature(cipher: bytes, d: int, n: int) -> [bool, int, int, int]
         return [True, oe, on, bytes_to_int(c[0])]
     else:
         return [False, oe, on, bytes_to_int(c[0])]
-
-
-if __name__ == '__main__':
-    _a = generate_rsa_keys()
-    _b = generate_rsa_keys()
-    print(hex(_a[0]) + ' ' + hex(_a[1]) + ' ' + hex(_a[2]))
-    print(hex(_b[0]) + ' ' + hex(_b[1]) + ' ' + hex(_b[2]))
-    _c = b'Lorem Ipsum 187'
-    _d = rsa_fernet_encrypt(_c, _a[0], _a[2], _b[0], _b[1], _b[2])
-    print(_d)
-    _e = rsa_fernet_decrypt(_d, _a[1], _a[2])
-    print(_e)
