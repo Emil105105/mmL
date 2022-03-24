@@ -1,10 +1,3 @@
-import requests
-try:
-    from mencryption import rsa_fernet_encrypt, rsa_fernet_decrypt, rsa_fernet_signature
-except ModuleNotFoundError:
-    from mmL.mencryption import rsa_fernet_encrypt, rsa_fernet_decrypt, rsa_fernet_signature
-from base64 import urlsafe_b64encode, urlsafe_b64decode
-from json import dumps, loads
 
 
 server_list = {'192.168.1.134:8187/api/game': {'e': 150217567738312485551917130257762861258235221512867788713554770212038617340168087528169028306535620890890610233065984374537212185875523354794127504929468595269641670246418331678328590391097361240430243265600070863509974028879445579691519652569495170191345529602525246308630579553639444666996629696229254949571,
@@ -15,6 +8,7 @@ server_list = {'192.168.1.134:8187/api/game': {'e': 1502175677383124855519171302
 
 
 def check_server(server: str):
+    import requests
     try:
         r = requests.get('http://' + server + '/about')
     except Exception:
@@ -27,6 +21,7 @@ def check_server(server: str):
 
 
 def get_server_keys(server: str):
+    import requests
     try:
         r = requests.get('http://' + server + '/about')
         response = r.json()
@@ -40,10 +35,21 @@ def get_server_keys(server: str):
 
 
 def _decode(cipher, d, n):
+    try:
+        from mencryption import rsa_fernet_decrypt
+    except ModuleNotFoundError:
+        from mmL.mencryption import rsa_fernet_decrypt
+    from base64 import urlsafe_b64decode
     return rsa_fernet_decrypt(urlsafe_b64decode(cipher), d, n).decode()
 
 
 def _send_request(data: str, e: int, d: int, n: int, server: str, server_e: int, server_n: int, action: str):
+    import requests
+    try:
+        from mencryption import rsa_fernet_encrypt
+    except ModuleNotFoundError:
+        from mmL.mencryption import rsa_fernet_encrypt
+    from base64 import urlsafe_b64encode
     try:
         encrypted = urlsafe_b64encode(rsa_fernet_encrypt(data.encode(), server_e, server_n, e, d, n)).decode()
     except Exception:
@@ -226,6 +232,7 @@ class Host:
 
         :return: A dictionary with the latest messages
         """
+        from base64 import urlsafe_b64decode
         msg = _send_request(self.code, self.e, self.d, self.n, self.server, self.server_e, self.server_n, '/receive')
 
         r = {}
@@ -233,7 +240,7 @@ class Host:
             if i in self.received:
                 pass
             else:
-                r[i] = msg[i]
+                r[i] = urlsafe_b64decode(msg[i])
 
         self.received = list(msg.keys())
 
@@ -259,6 +266,7 @@ class Host:
 
         :param data: Data string
         """
+        from base64 import urlsafe_b64encode
         _send_request(self.code + '\\' + urlsafe_b64encode(data).decode(), self.e, self.d, self.n, self.server, self.server_e, self.server_n, '/message')
 
     def leave(self) -> None:
@@ -318,6 +326,7 @@ class Client:
 
         :return: A dictionary with the latest messages
         """
+        from base64 import urlsafe_b64decode
         msg = _send_request(self.code, self.e, self.d, self.n, self.server, self.server_e, self.server_n, '/receive')
 
         r = {}
@@ -325,7 +334,7 @@ class Client:
             if i in self.received:
                 pass
             else:
-                r[i] = msg[i]
+                r[i] = urlsafe_b64decode(msg[i])
 
         self.received = list(msg.keys())
 
@@ -337,6 +346,7 @@ class Client:
 
         :param data: Data string
         """
+        from base64 import urlsafe_b64encode
         _send_request(self.code + '\\' + urlsafe_b64encode(data).decode(), self.e, self.d, self.n, self.server,
                       self.server_e, self.server_n, '/info')
 
