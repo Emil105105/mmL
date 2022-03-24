@@ -1,5 +1,7 @@
 
-VERSION = '0.1.0'
+VERSION = '1.0.1'
+
+CREDITS = 'Martin Merkli <https://github.com/Emil105105/>'
 
 LICENSE = '''
 This is free and unencumbered software released into the public domain.
