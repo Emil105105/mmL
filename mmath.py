@@ -69,13 +69,58 @@ def int_to_bytes(n: int):
     return r
 
 
-def float_to_ratio(n: float) -> (int, int):
-    x = str(n).split('.')
-    y = len(x[1])
-    a = int(x[0]) * pow(10, y) + int(x[1])
-    b = pow(10, y)
-    z = gcd(a, b)
-    return a // z, b // z
+def float_to_ratio(n: float, use_brute_force: bool = True, disable_gcd: bool = False, max_iterations: int = 16777215) -> (int, int):
+    if use_brute_force:
+        if n == 1/1:
+            return 1, 1
+        elif n == 0/1:
+            return 0, 1
+        else:
+            x = 1
+            y = 1
+            z = 0
+            for _ in range(max_iterations):
+                if y == 1 and z == 3:
+                    z = 0
+                    x += 1
+                elif z == 0:
+                    z = 1
+                    y += 1
+                elif x == 1 and z == 1:
+                    z = 2
+                    y += 1
+                elif z == 2:
+                    z = 3
+                    x += 1
+                elif z == 1:
+                    y += 1
+                    x -= 1
+                elif z == 3:
+                    y -= 1
+                    x += 1
+                else:
+                    raise Exception()
+                if n == x / y:
+                    return x, y
+            print(x, y)
+            c = str(n).split('.')
+            y = len(c[1])
+            a = int(c[0]) * pow(10, y) + int(c[1])
+            b = pow(10, y)
+            z = gcd(a, b)
+            a //= z
+            b //= z
+            return a, b
+    else:
+        c = str(n).split('.')
+        y = len(c[1])
+        a = int(c[0]) * pow(10, y) + int(c[1])
+        b = pow(10, y)
+    if not disable_gcd:
+        z = gcd(a, b)
+        a //= z
+        b //= z
+    return a, b
 
 
 def next_prime(n: int, max_guess: int = 65536, allow_same: bool = False) -> int:
@@ -94,8 +139,32 @@ def next_prime(n: int, max_guess: int = 65536, allow_same: bool = False) -> int:
     raise InterruptedError('Maximum guesses reached')
 
 
-def sqrt(n: int) -> float:
-    return n ** 0.5
+def sqrt(n: float, depth: int = 8) -> float:
+    a = 1.0
+    b = n
+    for i in range(depth):
+        a = (a + b) / 2
+        b = n / a
+    return b
+
+
+def sqrt_q(x, y, depth: int = 6) -> (int, int):
+    a, b = 1, 1
+    c, d = x, y
+    for i in range(depth):
+        a = a * d + c * b
+        b = b * d * 2
+        c = b * x
+        d = a * y
+    z = gcd(c, d)
+    return c // z, d // z
+
+
+def sqrt_n(n: int, max_guess: int = 16777215) -> int:
+    for i in range(max_guess):
+        if pow(i, 2) > n:
+            return i - 1
+    raise InterruptedError('Maximum guesses reached')
 
 
 def is_prime(n: int) -> bool:
