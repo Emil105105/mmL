@@ -1,5 +1,5 @@
 
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 CREDITS = 'Martin Merkli <https://github.com/Emil105105/>'
 
