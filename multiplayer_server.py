@@ -453,6 +453,6 @@ def handler_e(_):
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=8187, debug=True)
+        app.run(host='0.0.0.0', port=8187, debug=False)
     except KeyboardInterrupt:
         pass
