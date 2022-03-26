@@ -16,12 +16,9 @@ from ast import literal_eval
 #
 
 _legal_characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@.-_/äöüÄÖÜßàâéèêëËœïîôùûçÇ&'
-_provider = 'Martin Merkli <martin.merkli@protonmail.com>'
-_privacy = 'We do NOT send any data about our users to any third party. You can contact us via e-mail <martin.merkli@' \
-           'protonmail.com> about concerns and requests about deleting your account. We collect the following data ab' \
-           'out you: Account name and public keys. Your IP-address and requested resource will be visible in the cons' \
-           'ole of our server, but we do not save that. Messages in games will be deleted after a few days.'
-_illegal_names = ['admin', 'martin', 'martinmerkli', 'martinsmerkli', 'martin.merkli']
+_provider = 'ENTER YOUR NAME AND E-MAIL HERE'
+_privacy = 'ENTER YOUR PRIVACY POLICY HERE'
+_illegal_names = ['admin', 'root', 'server']
 
 app = Flask(__name__)
 
