@@ -128,7 +128,14 @@ def rand_bits(number_of_bits: int) -> str:
     :param number_of_bits: number of bits (length)
     :return: a random sequence of bits
     """
-    return bin(randint(pow(2, number_of_bits - 1), pow(2, number_of_bits)))[2:]
+    try:
+        from mmath import bytes_to_int
+    except (ImportError, ModuleNotFoundError):
+        from mmL.mmath import bytes_to_int
+    x = rand_bytes(number_of_bits // 8 + 1)
+    y = bytes_to_int(x)
+    z = y % pow(2, number_of_bits)
+    return format(z, '0' + str(number_of_bits) + 'b')
 
 
 def random_prime(bits: int, max_guesses: int = 65536) -> int:
