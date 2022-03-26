@@ -448,7 +448,7 @@ def handler_10(cipher):
 @app.errorhandler(405)
 @app.errorhandler(404)
 def handler_e(_):
-    return {'error': 'not found :404'}, 404
+    return {'error': '404 not found'}, 404
 
 
 if __name__ == '__main__':
