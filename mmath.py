@@ -1,6 +1,14 @@
 
 
 def miller_prime(n: int, iterations: int = 48) -> bool:
+    """
+    check if a number is prime using the miller method (may incorrectly indentify numbers as prime)
+
+    :param n: the number
+    :param iterations: higher values -> higher accuracy -> more resource usage;
+                       lower values -> lower accuracy -> less resource usage
+    :return: True (is a prime) or False (is NOT a prime)
+    """
     try:
         from mrandom import randint
     except (ImportError, ModuleNotFoundError):
@@ -32,27 +40,59 @@ def miller_prime(n: int, iterations: int = 48) -> bool:
 
 
 def floor(n: float) -> int:
+    """
+    calculate the largest integer <= n
+
+    :param n: any number
+    :return: the largest integer <= n
+    """
     return int(n)
 
 
 def ceil(n: float) -> int:
+    """
+    calculate the smallest integer >= n
+
+    :param n: any number
+    :return: the smallest integer >= n
+    """
     if n.is_integer():
         return int(n)
     else:
         return int(n + 1.0)
 
 
-def gcd(a, b):
+def gcd(a: int, b: int) -> int:
+    """
+    calculate the greatest common divisor of a and b
+
+    :param a: any integer
+    :param b: any integer
+    :return: the greatest common divisor
+    """
     if b == 0:
         return a
     return gcd(b, a % b)
 
 
-def lcm(a, b):
+def lcm(a: int, b: int) -> int:
+    """
+    calculate the least common multiple of a and b
+
+    :param a: any integer
+    :param b: any integer
+    :return: the least common multiple
+    """
     return a * b // gcd(a, b)
 
 
-def bytes_to_int(n: bytes):
+def bytes_to_int(n: bytes) -> int:
+    """
+    turn bytes into an integer
+
+    :param n: the bytes
+    :return: the integer
+    """
     r = 0
     for p in n:
         r *= 256
@@ -60,7 +100,13 @@ def bytes_to_int(n: bytes):
     return r
 
 
-def int_to_bytes(n: int):
+def int_to_bytes(n: int) -> bytes:
+    """
+    turn an integer into bytes
+
+    :param n: the integer
+    :return: the bytes
+    """
     r = b''
     x = n
     while x > 0:
@@ -69,7 +115,16 @@ def int_to_bytes(n: int):
     return r
 
 
-def float_to_ratio(n: float, use_brute_force: bool = True, disable_gcd: bool = False, max_iterations: int = 16777215) -> (int, int):
+def float_to_fraction(n: float, use_brute_force: bool = True, disable_gcd: bool = False, max_iterations: int = 16777215) -> (int, int):
+    """
+    turn a number into a fraction (numerator, denominator)
+
+    :param n: any number
+    :param use_brute_force: get expected result for rational numbers
+    :param disable_gcd: save resources, doesn't affect brute force method
+    :param max_iterations: maximum guesses using brute force
+    :return: the fraction (numerator, denominator)
+    """
     if use_brute_force:
         if n == 1/1:
             return 1, 1
@@ -124,6 +179,14 @@ def float_to_ratio(n: float, use_brute_force: bool = True, disable_gcd: bool = F
 
 
 def next_prime(n: int, max_guess: int = 65536, allow_same: bool = False) -> int:
+    """
+    calculate the next prime number
+
+    :param n: any integer
+    :param max_guess: the number of maximum guesses before an error
+    :param allow_same: return n if n is a prime
+    :return: the next prime
+    """
     if allow_same:
         if miller_prime(n):
             return n
@@ -139,18 +202,52 @@ def next_prime(n: int, max_guess: int = 65536, allow_same: bool = False) -> int:
     raise InterruptedError('Maximum guesses reached')
 
 
-def sqrt(n: float, depth: int = 8) -> float:
+def sqrt(n: float, depth: int = None) -> float:
+    """
+    calculate an approximation to the square root of any number
+
+    :param n: any number
+    :param depth: higher values -> higher accuracy -> more resource usage;
+                  lower values -> lower accuracy -> less resource usage
+                  None = automatic
+    :return: the square root
+    """
     a = 1.0
     b = n
+    if depth is None:
+        while True:
+            a = (a + b) / 2
+            b = n / a
+            if abs(a - b) < 0.000244140625:
+                return b
     for i in range(depth):
         a = (a + b) / 2
         b = n / a
     return b
 
 
-def sqrt_q(x, y, depth: int = 6) -> (int, int):
+def sqrt_q(x, y, depth: int = None) -> (int, int):
+    """
+    calculate an approximation to the square root of a fraction
+
+    :param x: numerator
+    :param y: denominator
+    :param depth: higher values -> higher accuracy -> more resource usage;
+                  lower values -> lower accuracy -> less resource usage
+                  None = automatic
+    :return: the square root (numerator, denominator)
+    """
     a, b = 1, 1
     c, d = x, y
+    if depth is None:
+        while True:
+            a = a * d + c * b
+            b = b * d * 2
+            c = b * x
+            d = a * y
+            if abs(a / b - c / d) < 0.000244140625:
+                z = gcd(c, d)
+                return c // z, d // z
     for i in range(depth):
         a = a * d + c * b
         b = b * d * 2
@@ -160,14 +257,29 @@ def sqrt_q(x, y, depth: int = 6) -> (int, int):
     return c // z, d // z
 
 
-def sqrt_n(n: int, max_guess: int = 16777215) -> int:
-    for i in range(max_guess):
+def sqrt_n(n: int) -> int:
+    """
+    get the square root (or the biggest integer smaller than it) of any integer
+
+    :param n: any integer
+    :return:
+    """
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    for i in range(n):
         if pow(i, 2) > n:
             return i - 1
-    raise InterruptedError('Maximum guesses reached')
 
 
 def is_prime(n: int) -> bool:
+    """
+    check if an integer is a prime
+
+    :param n: any integer
+    :return: True (is a prime) or False (is NOT a prime)
+    """
     if n < 2:
         return False
     if n in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]:
@@ -181,6 +293,9 @@ def is_prime(n: int) -> bool:
 
 
 class Q:
+    """
+    A class for fractions
+    """
 
     def __init__(self, n=None) -> None:
         if n is None:
@@ -250,26 +365,26 @@ class Q:
         self.denominator *= n
         self._reduce()
 
-    def add_ratio(self, a, b) -> None:
+    def add_fraction(self, a, b) -> None:
         x = lcm(self.denominator, b)
         self.numerator *= x // self.denominator
         self.denominator = x
         self.numerator += a * x
         self._reduce()
 
-    def subtract_ratio(self, a, b) -> None:
+    def subtract_fraction(self, a, b) -> None:
         x = lcm(self.denominator, b)
         self.numerator *= x // self.denominator
         self.denominator = x
         self.numerator -= a * x
         self._reduce()
 
-    def multiply_ratio(self, a, b):
+    def multiply_fraction(self, a, b):
         self.numerator *= a
         self.denominator *= b
         self._reduce()
 
-    def divide_ratio(self, a, b):
+    def divide_fraction(self, a, b):
         self.numerator *= b
         self.denominator *= a
         self._reduce()
