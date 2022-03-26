@@ -1,11 +1,25 @@
 
 
 def rand_bytes(number_of_bytes: int) -> bytes:
+    """
+    generate random bytes
+
+    :param number_of_bytes: the number of bytes
+    :return: the bytes
+    """
     from os import urandom
     return urandom(number_of_bytes)
 
 
-def rand_ratio(accuracy: int = 16, include_one: bool = False, disable_gcd: bool = False) -> (int, int):
+def rand_fraction(accuracy: int = 16, include_one: bool = False, disable_gcd: bool = False) -> (int, int):
+    """
+    generate a random fraction between 0 and 1
+
+    :param accuracy: the 256th log of the denominator
+    :param include_one: include the number one
+    :param disable_gcd: reduce resource usage
+    :return: a fraction (numerator, denominator)
+    """
     if accuracy < 1:
         raise ValueError('Accuracy cannot be lower than 1')
     try:
@@ -25,11 +39,24 @@ def rand_ratio(accuracy: int = 16, include_one: bool = False, disable_gcd: bool 
 
 
 def rand() -> float:
-    x, y = rand_ratio(disable_gcd=True)
+    """
+    generate a random number between 0 and 1
+
+    :return: a float between 0 and 1 (not including 1)
+    """
+    x, y = rand_fraction(disable_gcd=True)
     return x / y
 
 
-def rand_below_ratio(a: int, b: int = 1, disable_gcd: bool = False) -> (int, int):
+def rand_below_fraction(a: int, b: int = 1, disable_gcd: bool = False) -> (int, int):
+    """
+    generate a random fraction between 0 and the input
+
+    :param a: numerator
+    :param b: denominator
+    :param disable_gcd: reduce resource usage
+    :return: a random fraction between 0 and a/b
+    """
     if b == 0:
         raise ZeroDivisionError('[ It is impossible to divide by zero. If you could, you could proof that 1 = 2:\n'
                                 'a = b\na² = ab\na²-b² = ab-b²\n(a+b)(a-b) = b(a-b)\na+b = b\n2b = b\n2 = 1 ]')
@@ -42,7 +69,7 @@ def rand_below_ratio(a: int, b: int = 1, disable_gcd: bool = False) -> (int, int
     while c > 1:
         c //= 256
         n += 1
-    x, y = rand_ratio(n, False, disable_gcd)
+    x, y = rand_fraction(n, False, disable_gcd)
     x *= a
     y *= b
     if not disable_gcd:
@@ -53,15 +80,37 @@ def rand_below_ratio(a: int, b: int = 1, disable_gcd: bool = False) -> (int, int
 
 
 def rand_below_int(n: int) -> int:
-    x, y = rand_below_ratio(n, 1, True)
+    """
+    generate a random integer between 0 and the input
+
+    :param n: any integer
+    :return: a random number between 0 and n
+    """
+    x, y = rand_below_fraction(n, 1, True)
     return x // y
 
 
 def randint(a: int, b: int) -> int:
+    """
+    generate a random integer between two integers
+
+    :param a: lower limit
+    :param b: upper limit (NOT included)
+    :return: a random integer between a and b
+    """
     return rand_below_int(b - a) + a
 
 
 def randint_except(a: int, b: int, e: list, max_guess: int = 65536) -> int:
+    """
+    generate a random integer between two integers which isn't included in a list
+
+    :param a: lower limit
+    :param b: upper limit (NOT included)
+    :param e: list of exceptions
+    :param max_guess: maximum number of guesses
+    :return: a random integer between a and b which isn't in e
+    """
     for j in range(max_guess):
         x = randint(a, b - len(e))
         for i in e:
@@ -73,10 +122,23 @@ def randint_except(a: int, b: int, e: list, max_guess: int = 65536) -> int:
 
 
 def rand_bits(number_of_bits: int) -> str:
+    """
+    generate a random sequence of bits
+
+    :param number_of_bits: number of bits (length)
+    :return: a random sequence of bits
+    """
     return bin(randint(pow(2, number_of_bits - 1), pow(2, number_of_bits)))[2:]
 
 
 def random_prime(bits: int, max_guesses: int = 65536) -> int:
+    """
+    generate a random prime with a specified number of bits
+
+    :param bits: number of bits (length)
+    :param max_guesses: maximum number of guesses before an error occurs
+    :return: a random prime with a specified number of bits
+    """
     if bits < 2:
         raise ValueError('There is no prime number')
     try:
