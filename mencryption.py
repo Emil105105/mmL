@@ -1,6 +1,13 @@
 
 
 def generate_rsa_keys(length: int = 2048, exponent: int = None) -> [int, int, int]:
+    """
+    generate keys for the rsa cryptosystem
+
+    :param length: the length of the modulo in bits (base 2) (HAS to be a multiple of 2!)
+    :param exponent: Optional: use custom exponent, for example: 65537
+    :return: [e, d, n]: e and n are public, d is a secret
+    """
     if length % 2 == 1:
         raise ValueError('Length has to be a multiple of 2')
     try:
@@ -28,16 +35,37 @@ def generate_rsa_keys(length: int = 2048, exponent: int = None) -> [int, int, in
 
 
 def rsa_encrypt(data: int, e: int, n: int) -> int:
+    """
+    encrypt data with the rsa cryptosystem (rsa_fernet_encrypt is more secure and supports more data)
+
+    :param data: the plaintext
+    :param e: public key (e) of the other person
+    :param n: public key (n) of the other person
+    :return: the ciphertext
+    """
     if data > n:
         raise OverflowError('')
     return pow(data, e, n)
 
 
 def rsa_decrypt(cipher: int, d: int, n: int) -> int:
+    """
+    decrypt ciphers with the rsa cryptosystem
+
+    :param cipher: the ciphertext
+    :param d: your private key
+    :param n: your public key (n)
+    :return: the plaintext
+    """
     return pow(cipher, d, n)
 
 
 def generate_fernet_key() -> bytes:
+    """
+    generate a key for the fernet cryptosystem
+
+    :return: the key
+    """
     try:
         from cryptography.fernet import Fernet
     except (ImportError, ModuleNotFoundError):
@@ -49,6 +77,13 @@ def generate_fernet_key() -> bytes:
 
 
 def fernet_encrypt(data: bytes, key: bytes) -> bytes:
+    """
+    encrypt data with the fernet cryptosystem
+
+    :param data: the plaintext
+    :param key: the key
+    :return: the cipher
+    """
     try:
         from cryptography.fernet import Fernet
     except (ImportError, ModuleNotFoundError):
@@ -61,6 +96,13 @@ def fernet_encrypt(data: bytes, key: bytes) -> bytes:
 
 
 def fernet_decrypt(cipher: bytes, key: bytes) -> bytes:
+    """
+    decrypt ciphers with the fernet cryptosystem
+
+    :param cipher: the cipher
+    :param key: the key
+    :return: the plaintext
+    """
     try:
         from cryptography.fernet import Fernet
     except (ImportError, ModuleNotFoundError):
@@ -73,6 +115,18 @@ def fernet_decrypt(cipher: bytes, key: bytes) -> bytes:
 
 
 def rsa_fernet_encrypt(data: bytes, e: int, n: int, oe: int, od: int, on: int) -> bytes:
+    """
+    encrypt data using a mix of fernet encryption and the rsa cryptosystem (recommended asymmetric method)
+    protects against several kinds of attacks and supports signatures
+
+    :param data: the plaintext
+    :param e: public key (e) of the other person
+    :param n: public key (n) of the other person
+    :param oe: your public key (e)
+    :param od: your private key
+    :param on: your public key (n)
+    :return: the ciphertext
+    """
     from base64 import urlsafe_b64encode, urlsafe_b64decode
     try:
         from mmath import bytes_to_int, int_to_bytes
@@ -90,6 +144,15 @@ def rsa_fernet_encrypt(data: bytes, e: int, n: int, oe: int, od: int, on: int) -
 
 
 def rsa_fernet_decrypt(cipher: bytes, d: int, n: int, disable_checksum: bool = False) -> bytes:
+    """
+    decrypt data using a mix of fernet encryption and the rsa cryptosystem
+
+    :param cipher: the ciphertext
+    :param d: your private key
+    :param n:your public key (n)
+    :param disable_checksum: disable signature checks (NOT recommended)
+    :return: the plaintext
+    """
     from base64 import urlsafe_b64encode, urlsafe_b64decode
     try:
         from mmath import bytes_to_int, int_to_bytes
@@ -116,6 +179,14 @@ def rsa_fernet_decrypt(cipher: bytes, d: int, n: int, disable_checksum: bool = F
 
 
 def rsa_fernet_signature(cipher: bytes, d: int, n: int) -> [bool, int, int, int]:
+    """
+    get information about a cipher
+
+    :param cipher: the ciphertext
+    :param d: your private key
+    :param n: your public key (n)
+    :return: [has valid signature; public key (e) of sender; public key (n) of sender; version]
+    """
     from base64 import urlsafe_b64encode, urlsafe_b64decode
     try:
         from mmath import bytes_to_int, int_to_bytes
@@ -138,3 +209,4 @@ def rsa_fernet_signature(cipher: bytes, d: int, n: int) -> [bool, int, int, int]
         return [True, oe, on, bytes_to_int(c[0])]
     else:
         return [False, oe, on, bytes_to_int(c[0])]
+
