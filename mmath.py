@@ -286,8 +286,8 @@ def is_prime(n: int) -> bool:
         return True
     if n % 2 == 0:
         return False
-    for i in range(3, int(sqrt(n)) + 2, 2):
-        if n % i == 0:
+    for i in range(3, sqrt_n(n) + 2, 2):
+        if n % i == 0 and i < n:
             return False
     return True
 
