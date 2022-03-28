@@ -4,21 +4,31 @@ from base64 import urlsafe_b64encode, urlsafe_b64decode
 from os.path import exists
 from json import dump, load
 from time import time
-from mrandom import randint_except
+from mrandom import randint_except, rand_bytes
 from ast import literal_eval
+from mmath import bytes_to_int
 
-#
-# import os
-# import logging
-#
-# logging.getLogger('werkzeug').disabled = True
-# os.environ['WERKZEUG_RUN_MAIN'] = 'true'
-#
+
+_disable_console = False
+
+if _disable_console:
+    import os
+    import logging
+
+    logging.getLogger('werkzeug').disabled = True
+    os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+
 
 _legal_characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@.-_/äöüÄÖÜßàâéèêëËœïîôùûçÇ&'
-_provider = 'ENTER YOUR NAME AND E-MAIL HERE'
-_privacy = 'ENTER YOUR PRIVACY POLICY HERE'
+_provider = ''
+_privacy = ''
 _illegal_names = ['admin', 'root', 'server']
+
+
+_admin_code = hex(bytes_to_int(rand_bytes(4)))[2:]
+print('Admin code: ' + _admin_code)
+_uptime = time()
+
 
 app = Flask(__name__)
 
@@ -43,10 +53,6 @@ else:
         a = load(_f)
 
 g = {}
-
-
-def log(x):
-    print(x)
 
 
 def get_account_name(rsa_n):
@@ -179,13 +185,11 @@ def handler_0():
 @app.route('/api/game/create_account/<cipher>', methods=['GET'])
 def handler_1(cipher):
     global a, _legal_characters, _illegal_names
-    log({'cipher': cipher})
     try:
         data = decode(cipher)
         p_e, p_n = get_sender(cipher)
     except KeyboardInterrupt:
         return {'error': 'could not decode your request', 'code': 2}, 400
-    log({'data': data, 'p_e': p_e, 'p_n': p_n})
     if len(data) < 2:
         return {'error': 'name is too short', 'code': 100}, 400
     if len(data) > 32:
@@ -202,7 +206,6 @@ def handler_1(cipher):
     a[data] = {'e': p_e, 'n': p_n}
     with open('accounts.json', 'w') as f:
         dump(a, f, indent=4)
-    log({'a': a})
     return {'success': 'Your account was created', 'e': p_e, 'n': p_n, 'name': re(data, p_e, p_n)}, 200
 
 
@@ -241,7 +244,6 @@ def handler_2(cipher):
     used_codes = [int(i) for i in g.keys()]
     code = str(randint_except(100000, 999999, used_codes))
     g[code] = MultiGame(get_account_name(p_n), max_players, p_e, p_n, banned_ids, data[0], public)
-    log({'g': g})
     return {'success': 'The game was created', '_code': re(code, p_e, p_n)}, 200
 
 
@@ -390,7 +392,6 @@ def handler_8(cipher):
         p_e, p_n = get_sender(cipher)
     except Exception:
         return {'error': 'could not decode your request', 'code': 2}, 400
-    log({'data': data, 'g': g, 'p_e': p_e, 'p_n': p_n})
     name = get_account_name(p_n)
     if name is None:
         return {'error': 'you do not have an account', 'code': 10}, 400
@@ -439,6 +440,16 @@ def handler_10(cipher):
             pass
         else:
             r[i] = info
+    return r
+
+
+@app.route('/api/game/admin/<code>')
+def handler_11(code):
+    if code != _admin_code:
+        return {'error': '404 not found'}, 404
+    r = {'games': {}, 'uptime': _uptime, 'current_time': time(), 'accounts': a}
+    for i in g.keys():
+        r['games'][i] = g[i].get(admin=True)
     return r
 
 
