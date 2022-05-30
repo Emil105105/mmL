@@ -86,6 +86,15 @@ def lcm(a: int, b: int) -> int:
     return a * b // gcd(a, b)
 
 
+def bytes_xor(a: bytes, b: bytes, short: bool = False) -> bytes:
+    if short:
+        return bytes(x ^ y for x, y in zip(a, b))
+    elif len(a) != len(b):
+        raise ValueError('both bytes objects must have the same length')
+    else:
+        return bytes(x ^ y for x, y in zip(a, b))
+
+
 def bytes_to_int(n: bytes) -> int:
     """
     turn bytes into an integer
