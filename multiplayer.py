@@ -469,4 +469,3 @@ class ServerNotOnList(ConnectionIssue):
 class EncryptionError(ConnectionIssue):
     """Raised if the encryption or decryption was not possible"""
     pass
-
