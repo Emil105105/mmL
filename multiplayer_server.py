@@ -188,7 +188,7 @@ def handler_1(cipher):
     try:
         data = decode(cipher)
         p_e, p_n = get_sender(cipher)
-    except KeyboardInterrupt:
+    except Exception:
         return {'error': 'could not decode your request', 'code': 2}, 400
     if len(data) < 2:
         return {'error': 'name is too short', 'code': 100}, 400
@@ -381,7 +381,7 @@ def handler_7(cipher):
         return {'error': 'you are not part of this game', 'code': 116}, 400
     if len(data) < 1 or len(data) > 65535:
         return {'error': 'message is too long or too short', 'code': 125}, 400
-    g[data[0]].message(p_n, data)
+    g[data[0]].message(p_n, data[1])
     return {'success': 'the message was sent'}, 200
 
 
@@ -443,7 +443,7 @@ def handler_10(cipher):
     return r
 
 
-@app.route('/api/game/admin/<code>')
+@app.route('/api/game/admin_info/<code>', methods=['GET'])
 def handler_11(code):
     if code != _admin_code:
         return {'error': '404 not found'}, 404
@@ -464,3 +464,4 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=8187, debug=False)
     except KeyboardInterrupt:
         pass
+    
