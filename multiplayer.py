@@ -1,16 +1,16 @@
 
 
-server_list = {'192.168.1.134:8187/api/game': {'e': 150217567738312485551917130257762861258235221512867788713554770212038617340168087528169028306535620890890610233065984374537212185875523354794127504929468595269641670246418331678328590391097361240430243265600070863509974028879445579691519652569495170191345529602525246308630579553639444666996629696229254949571,
+server_list = {'188.63.49.183:8187/api/game': {'e': 150217567738312485551917130257762861258235221512867788713554770212038617340168087528169028306535620890890610233065984374537212185875523354794127504929468595269641670246418331678328590391097361240430243265600070863509974028879445579691519652569495170191345529602525246308630579553639444666996629696229254949571,
                                                'n': 16081851274739252063581690036118574640860532126091046929507122825565601083706274573750384634579337493839382544749514713758657208089245718294364937848858819453707226054549638124775135994036540198296573970847363611349877552574587070456877408396900133925515992713006187509898020472362199408053631005324416080783194439934892756914019290993005676543067987800962596545841898980290493349929842873911710030501545232149065036507008196661546963918563737317442450340605604636264642707617293716244057412875527656229847319434350987301204253787758529828164490026931498419587259261778923126349905750327786976931573098782899077143251},
-               '127.0.0.1:8187/api/game': {'e': 150217567738312485551917130257762861258235221512867788713554770212038617340168087528169028306535620890890610233065984374537212185875523354794127504929468595269641670246418331678328590391097361240430243265600070863509974028879445579691519652569495170191345529602525246308630579553639444666996629696229254949571,
-                                           'n': 16081851274739252063581690036118574640860532126091046929507122825565601083706274573750384634579337493839382544749514713758657208089245718294364937848858819453707226054549638124775135994036540198296573970847363611349877552574587070456877408396900133925515992713006187509898020472362199408053631005324416080783194439934892756914019290993005676543067987800962596545841898980290493349929842873911710030501545232149065036507008196661546963918563737317442450340605604636264642707617293716244057412875527656229847319434350987301204253787758529828164490026931498419587259261778923126349905750327786976931573098782899077143251}
+
                }
 
 
 def check_server(server: str):
     import requests
     try:
-        r = requests.get('http://' + server + '/about')
+        r = requests.get('http://' + server + '/about',
+                         headers={'User-Agent': 'python-requests/2.27.1 mmL-multiplayer/2.0.1'})
     except Exception:
         return False
     if r.status_code != 200:
@@ -23,7 +23,8 @@ def check_server(server: str):
 def get_server_keys(server: str):
     import requests
     try:
-        r = requests.get('http://' + server + '/about')
+        r = requests.get('http://' + server + '/about',
+                         headers={'User-Agent': 'python-requests/2.27.1 mmL-multiplayer/2.0.1'})
         response = r.json()
     except Exception:
         raise ConnectionIssue()
@@ -56,7 +57,8 @@ def _send_request(data: str, e: int, d: int, n: int, server: str, server_e: int,
         raise EncryptionError()
 
     try:
-        r = requests.get('http://' + server + action + '/' + encrypted)
+        r = requests.get('http://' + server + action + '/' + encrypted,
+                         headers={'User-Agent': 'python-requests/2.27.1 mmL-multiplayer/2.0.1'})
         response = r.json()
     except Exception:
         raise ConnectionIssue()
@@ -115,7 +117,8 @@ def _send_request(data: str, e: int, d: int, n: int, server: str, server_e: int,
         return response
 
 
-def create_account(name: str, e: int, d: int, n: int, server: str = '188.63.49.183:8187/api/game', server_e: int = None, server_n: int = None) -> None:
+def create_account(name: str, e: int, d: int, n: int, server: str = '188.63.49.183:8187/api/game', server_e: int = None,
+                   server_n: int = None) -> None:
     """
     Creates a new account. Can be used for all games on a server.
 
@@ -137,7 +140,8 @@ def create_account(name: str, e: int, d: int, n: int, server: str = '188.63.49.1
     _send_request(name, e, d, n, server, server_e, server_n, '/create_account')
 
 
-def get_game_list(game: str, e: int, d: int, n: int, server: str = '188.63.49.183:8187/api/game', server_e: int = None, server_n: int = None) -> dict:
+def get_game_list(game: str, e: int, d: int, n: int, server: str = '188.63.49.183:8187/api/game', server_e: int = None,
+                  server_n: int = None) -> dict:
     """
     Looks for public games.
 
@@ -162,7 +166,9 @@ def get_game_list(game: str, e: int, d: int, n: int, server: str = '188.63.49.18
 
 class Host:
 
-    def __init__(self, game: str, e: int, d: int, n: int, max_players: int = 2, public: bool = True, banned_ids: list = None, server: str = '188.63.49.183:8187/api/game', server_e: int = None, server_n: int = None) -> None:
+    def __init__(self, game: str, e: int, d: int, n: int, max_players: int = 2, public: bool = True,
+                 banned_ids: list = None, server: str = '188.63.49.183:8187/api/game', server_e: int = None,
+                 server_n: int = None) -> None:
         """
         Creates a new multiplayer game.
 
@@ -215,7 +221,8 @@ class Host:
 
         :param status: The new status of the game: 1. public; 2. private; 3. not accessible
         """
-        _send_request(self.code + '\\' + str(status), self.e, self.d, self.n, self.server, self.server_e, self.server_n, '/status')
+        _send_request(self.code + '\\' + str(status), self.e, self.d, self.n, self.server, self.server_e, self.server_n,
+                      '/status')
 
     def info(self) -> dict:
         """
@@ -258,7 +265,8 @@ class Host:
             data = '0'
         else:
             data = '1'
-        _send_request(self.code + '\\' + player_name + '\\' + data + '\\' + reason, self.e, self.d, self.n, self.server, self.server_e, self.server_n, '/kick')
+        _send_request(self.code + '\\' + player_name + '\\' + data + '\\' + reason, self.e, self.d, self.n, self.server,
+                      self.server_e, self.server_n, '/kick')
 
     def message(self, data: bytes) -> None:
         """
@@ -267,7 +275,8 @@ class Host:
         :param data: Data string
         """
         from base64 import urlsafe_b64encode
-        _send_request(self.code + '\\' + urlsafe_b64encode(data).decode(), self.e, self.d, self.n, self.server, self.server_e, self.server_n, '/message')
+        _send_request(self.code + '\\' + urlsafe_b64encode(data).decode(), self.e, self.d, self.n, self.server,
+                      self.server_e, self.server_n, '/message')
 
     def leave(self) -> None:
         """
@@ -278,7 +287,8 @@ class Host:
 
 class Client:
 
-    def __init__(self, e: int, d: int, n: int, code: str, server: str = '188.63.49.183:8187/api/game', server_e: int = None, server_n: int = None) -> None:
+    def __init__(self, e: int, d: int, n: int, code: str, server: str = '188.63.49.183:8187/api/game',
+                 server_e: int = None, server_n: int = None) -> None:
         """
         Joins a game.
 
