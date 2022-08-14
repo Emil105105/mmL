@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from mencryption import rsa_fernet_encrypt, rsa_fernet_decrypt, generate_rsa_keys, rsa_fernet_signature
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 from os.path import exists
@@ -7,17 +7,8 @@ from time import time
 from mrandom import randint_except, rand_bytes
 from ast import literal_eval
 from mmath import bytes_to_int
-
-
-_disable_console = False
-
-if _disable_console:
-    import os
-    import logging
-
-    logging.getLogger('werkzeug').disabled = True
-    os.environ['WERKZEUG_RUN_MAIN'] = 'true'
-
+from logging import basicConfig as log_basicConfig, info as log_info, INFO as LOG_INFO
+from hashlib import sha3_256
 
 _legal_characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@.-_/äöüÄÖÜßàâéèêëËœïîôùûçÇ&'
 _provider = ''
@@ -31,6 +22,9 @@ _uptime = time()
 
 
 app = Flask(__name__)
+
+log_basicConfig(filename='multiplayer_server.log', format='%(asctime)s\t%(message)s', datefmt='%Y-%m-%d_%H-%M-%S',
+                level=LOG_INFO)
 
 
 if not exists('rsa.json'):
@@ -55,9 +49,32 @@ else:
 g = {}
 
 
+def sha256(obj):
+    h = sha3_256()
+    h.update(obj)
+    return h.digest()
+
+
+def hash_ip(ip):
+    return str(int(sha256(ip.encode()).hex(), 16) % 9999991)
+
+
+def log(r, allowed='1'):
+    ip = hash_ip(r.access_route[-1])
+    user_agent = r.user_agent.string
+    path = r.full_path
+    if path[-1] == '?':
+        path = path[0:-1]
+    method = r.method
+    post = ''
+    if method == 'POST':
+        post = r.get_data()
+    log_info(f"{allowed}\t{ip}\t{method}\t{path}\t{user_agent}\t{post}")
+
+
 def get_account_name(rsa_n):
     global a
-    for i in a.keys():
+    for i in a:
         if a[i]['n'] == rsa_n:
             return i
     return None
@@ -169,6 +186,29 @@ class MultiGame:
             return None
         else:
             return {'current_players': len(self.players), 'host': self.host, 'max_players': self.max_players}
+
+
+def scan_request(r):
+    if r.remote_addr not in ['127.0.0.1', '0.0.0.0', None]:
+        return False
+    user_agent = r.user_agent.string
+    path = r.full_path
+    if request.method not in ['GET', 'POST']:
+        return False
+    if user_agent != 'python-requests/2.27.1 mmL-multiplayer/2.0.1':
+        return False
+    for i in ['../', '..%2f', '..%2F']:
+        if i in path:
+            return False
+    return True
+
+
+@app.before_request
+def before_request():
+    if not scan_request(request):
+        log(request, '0')
+        return {'status_code': 403, 'error_message': 'Access Denied'}, 403
+    log(request, '1')
 
 
 @app.route('/api/game/about', methods=['GET'])
@@ -464,4 +504,3 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=8187, debug=False)
     except KeyboardInterrupt:
         pass
-    
